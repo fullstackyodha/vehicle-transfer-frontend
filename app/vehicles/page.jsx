@@ -248,7 +248,7 @@ export default function Vehicles() {
 										required
 									/>
 
-									<label htmlFor="puc">
+									<label htmlFor="insurance">
 										Insurance Certificate
 									</label>
 

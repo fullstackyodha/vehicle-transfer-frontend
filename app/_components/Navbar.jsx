@@ -25,7 +25,7 @@ const Navbar = () => {
 						className={`navlinks ${
 							pathName === "vehicles" && "active"
 						}`}
-						href="vehicles">
+						href="/vehicles">
 						Vehicles
 					</Link>
 				</li>
@@ -35,7 +35,7 @@ const Navbar = () => {
 						className={`navlinks ${
 							pathName === "transfers" && "active"
 						}`}
-						href="transfers">
+						href="/transfers">
 						Transfers
 					</Link>
 				</li>
