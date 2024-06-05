@@ -41,6 +41,14 @@ export default function Transfers() {
 
 	const [driver, setDriver] = useState("");
 
+	const [vehicleNumber, setVehicleNumber] = useState("");
+
+	const [vehicle_id, setVehicleId] = useState("");
+
+	const [from, setFrom] = useState("");
+
+	const [to, setTo] = useState("");
+
 	const [searchValue, setSearchValue] = useState("");
 
 	useEffect(() => {
@@ -107,6 +115,10 @@ export default function Transfers() {
 	const handleOpen = () => setOpen(true);
 	const handleClose = () => setOpen(false);
 
+	const [openTransfer, setOpenTransfer] = useState(false);
+	const handleOpenTransfer = () => setOpenTransfer(true);
+	const handleCloseTransfer = () => setOpenTransfer(false);
+
 	const handleAssignVehicle = async (e) => {
 		try {
 			e.preventDefault();
@@ -149,6 +161,50 @@ export default function Transfers() {
 		}
 	};
 
+	const handleTransferVehicle = async (e) => {
+		try {
+			e.preventDefault();
+
+			const response = await fetch(
+				"http://localhost:5000/api/v1/transfer/",
+				{
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						from,
+						to,
+						vehicle_id,
+					}),
+				}
+			);
+
+			if (!response.ok) {
+				toast.error("Error Transfering!!", {
+					duration: 4000,
+					position: "top-center",
+				});
+			} else {
+				setVehicleNumber("");
+				setVehicleId("");
+				setFrom("");
+				setTo("");
+
+				toast.success("Transfered Successfully.", {
+					duration: 4000,
+					position: "top-center",
+				});
+
+				handleCloseTransfer();
+			}
+		} catch (err) {
+			toast.error("Error Transfering!!", {
+				duration: 4000,
+				position: "top-center",
+			});
+		}
+	};
 	return (
 		<Box
 			sx={{
@@ -270,15 +326,96 @@ export default function Transfers() {
 					onClick={handleOpen}>
 					<AddIcon /> Assign
 				</Button>
-
-				<Button
-					variant="contained"
-					size="small"
-					color="warning"
-					onClick={() => {}}>
-					<SyncAltIcon /> Transfer
-				</Button>
 			</Box>
+
+			{/* MODAL */}
+			<div>
+				<Modal
+					open={openTransfer}
+					onClose={handleCloseTransfer}
+					aria-labelledby="modal-modal-transfer">
+					<Box sx={style}>
+						<Box
+							sx={{ fontSize: "1.2rem" }}
+							id="modal-modal-transfer">
+							Transfer Vehicle
+						</Box>
+
+						<form>
+							<Box
+								sx={{
+									display: "flex",
+									flexDirection: "column",
+									justifyContent: "space-between",
+									gap: "1rem",
+								}}>
+								<Box
+									sx={{
+										display: "flex",
+										justifyContent: "center",
+									}}>
+									<Box
+										sx={{
+											fontSize: "0.9rem",
+											fontWeight: "bold",
+											padding: "0.3rem 0.4rem",
+											borderRadius: "10px",
+											backgroundColor: "#123459",
+											color: "white",
+										}}>
+										{vehicleNumber}
+									</Box>
+								</Box>
+
+								<Box
+									sx={{
+										textAlign: "center",
+										fontSize: "1.2rem",
+										fontWeight: "bold",
+									}}>
+									To
+								</Box>
+
+								<Box
+									sx={{
+										minWidth: 120,
+									}}>
+									<FormControl fullWidth>
+										<InputLabel id="transfer" size="small">
+											Select Driver
+										</InputLabel>
+										<Select
+											size="small"
+											labelId="transfer"
+											id="transfer"
+											value={to}
+											label="Select Driver"
+											onChange={(e) => {
+												setTo(e.target.value);
+											}}>
+											{driverList.map((driver, index) => (
+												<MenuItem
+													key={index}
+													value={driver.id}>
+													{driver.name}
+												</MenuItem>
+											))}
+										</Select>
+									</FormControl>
+								</Box>
+
+								<Button
+									sx={{ marginTop: "1rem" }}
+									onClick={handleTransferVehicle}
+									color="success"
+									variant="contained">
+									Transfer
+								</Button>
+							</Box>
+						</form>
+					</Box>
+				</Modal>
+			</div>
 
 			{assignedList.length > 0 && (
 				<Box
@@ -312,7 +449,7 @@ export default function Transfers() {
 									flexDirection: "row",
 									justifyContent: "space-between",
 									alignItems: "center",
-									width: "50%",
+									width: "80%",
 									padding: "1rem",
 									backgroundColor: "#dcdee0",
 									borderRadius: "10px",
@@ -388,7 +525,7 @@ export default function Transfers() {
 											alignItems: "center",
 											gap: "0.5rem",
 										}}>
-										<Box>Driver</Box>
+										<Box>Current Driver</Box>
 										<Box
 											sx={{
 												fontSize: "0.9rem",
@@ -399,6 +536,21 @@ export default function Transfers() {
 											{vehicle.name}
 										</Box>
 									</Box>
+
+									<Button
+										variant="contained"
+										size="small"
+										color="warning"
+										onClick={() => {
+											setVehicleNumber(
+												vehicle.vehicleNumber
+											);
+											setVehicleId(vehicle.vehicle_id);
+											setFrom(vehicle.driver_id);
+											handleOpenTransfer();
+										}}>
+										<SyncAltIcon /> Transfer
+									</Button>
 								</Box>
 							</Box>
 						</>
